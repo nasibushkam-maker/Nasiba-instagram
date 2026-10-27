@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Maxfiy ma'lumotlar (Bot tokeni)
+.env
+
+# Vaqtinchalik fayllar va papkalar
+downloads/
+uploads/
+converted_files/
+
+# VS Code / IDE
+.vscode/
+.idea/
