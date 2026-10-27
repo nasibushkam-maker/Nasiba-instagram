@@ -16,16 +16,20 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 import yt_dlp
 import converter
 
+# Логларни созлаш
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
 # .env файлидан созламаларни юклаш
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN топилмади! .env файлига BOT_TOKEN ни киритинг.")
-
-# Логларни созлаш
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+    logger.critical("=" * 60)
+    logger.critical("ХАТОЛИК: BOT_TOKEN топилмади!")
+    logger.critical("Render бошқарув панелида Environment бўлимига ўтинг ва BOT_TOKEN калитини қўшинг!")
+    logger.critical("=" * 60)
+    raise ValueError("BOT_TOKEN топилмади! Render'да Environment Variables'га BOT_TOKEN ни киритинг.")
 
 # Папкалар
 DOWNLOADS_DIR = Path("downloads")
