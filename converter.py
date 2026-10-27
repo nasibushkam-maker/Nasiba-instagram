@@ -166,8 +166,17 @@ def read_table_rows(input_path: str) -> List[List[str]]:
 
 
 def find_browser() -> Optional[str]:
-    """PDF яратиш учун Edge ёки Chrome браузерини топади"""
+    """PDF яратиш учун Edge, Chrome ёки Chromium браузерини топади (Windows ва Linux учун)"""
     candidates = [
+        # Linux / Docker / Render йўллари
+        shutil.which("chromium"),
+        shutil.which("chromium-browser"),
+        shutil.which("google-chrome"),
+        shutil.which("google-chrome-stable"),
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/google-chrome",
+        # Windows йўллари
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         shutil.which("msedge"),
@@ -278,6 +287,8 @@ tr:nth-child(even) td {{
             cmd = [
                 browser,
                 "--headless=new",
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
                 "--no-pdf-header-footer",
                 "--disable-gpu",
                 f"--print-to-pdf={abs_output_path}",
@@ -443,6 +454,22 @@ def find_ffmpeg() -> str:
     if ffmpeg_cmd:
         return ffmpeg_cmd
 
+    # static_ffmpeg кутубхонаси орқали текшириш
+    try:
+        import static_ffmpeg
+        static_ffmpeg.add_paths()
+        ffmpeg_cmd = shutil.which("ffmpeg")
+        if ffmpeg_cmd:
+            return ffmpeg_cmd
+    except Exception:
+        pass
+
+    # Linux стандарт йўллари
+    for lp in ["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/bin/ffmpeg"]:
+        if os.path.exists(lp):
+            return lp
+
+    # Windows йўллари
     local_app_data = os.environ.get("LOCALAPPDATA", "")
     possible_paths = [
         Path(local_app_data) / "Microsoft" / "WinGet" / "Packages",
