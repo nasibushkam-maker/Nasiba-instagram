@@ -378,9 +378,43 @@ async def handle_other_messages(message: types.Message):
     )
 
 
+# ==========================================
+# 7. RENDER УЧУН ДАСТУР (HEALTH CHECK HTTP СЕРВЕР)
+# ==========================================
+async def start_dummy_server(port: int):
+    """
+    Render'да Web Service бепул тарифида порт скан хатолиги
+    (Port scan timeout) бермаслиги учун енгил HTTP сервер.
+    """
+    from aiohttp import web
+    app = web.Application()
+
+    async def handle_ping(request):
+        return web.Response(text="Bot is running! 🚀\nTelegram: @nasiba_instagram_bot")
+
+    app.router.add_get("/", handle_ping)
+    app.router.add_get("/health", handle_ping)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logger.info(f"Render HTTP сервери {port}-портда муваффақиятли ишга тушди.")
+
+
 async def main():
     logger.info("Бот кўп функцияли режимда ишга тушмоқда...")
     await bot.delete_webhook(drop_pending_updates=True)
+
+    # Render муҳитида PORT мавжуд бўлса, HTTP серверни ишга тушириш
+    port_env = os.getenv("PORT")
+    if port_env:
+        try:
+            port = int(port_env)
+            await start_dummy_server(port)
+        except Exception as e:
+            logger.warning(f"Render HTTP серверини ишга туширишда хатолик: {e}")
+
     await dp.start_polling(bot)
 
 
@@ -389,3 +423,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logger.info("Бот тўхтатилди.")
+
